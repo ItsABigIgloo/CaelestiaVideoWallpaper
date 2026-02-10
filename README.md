@@ -29,4 +29,4 @@ this is a how to get video wallpaper when using Caelestia Shell
 #move video_wall.sh file to /home/user$/.config/hypr/scripts/
 #move gamemode_wallpaper.sh to /home/user$/.config/hypr/scripts/
 
-#Enjoy \(^_^)/
+#Enjoy \\(^_^)/
