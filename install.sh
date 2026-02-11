@@ -1,130 +1,80 @@
 #!/bin/bash
 
-# --- INSTALLER CONFIGURATION ---
+# --- CONFIGURATION ---
 INSTALL_DIR="$HOME/.local/bin"
-# Define the new folder path
 WALLPAPER_DIR="$HOME/Pictures/Wallpapers/Live"
-WALLPAPER_SCRIPT="$INSTALL_DIR/video_wallpaper.sh"
-TOGGLE_SCRIPT="$INSTALL_DIR/toggle_wallpaper.sh"
+CONTROLLER_SCRIPT="$INSTALL_DIR/hypr_live_wallpaper.sh"
 HYPR_CONF="$HOME/.config/hypr/hyprland.conf"
 
-# Colors for pretty output
 GREEN='\033[0;32m'
-RED='\033[0;31m'
 YELLOW='\033[0;33m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-echo -e "${GREEN}Starting Universal Live Wallpaper Installation...${NC}"
+echo -e "${GREEN}Installing Multi-Monitor Live Wallpaper System...${NC}"
 
-# 1. Create the directories if they don't exist
-if [ ! -d "$INSTALL_DIR" ]; then
-    echo "Creating $INSTALL_DIR..."
-    mkdir -p "$INSTALL_DIR"
-fi
+# Create directories
+mkdir -p "$INSTALL_DIR"
+mkdir -p "$WALLPAPER_DIR"
 
-if [ ! -d "$WALLPAPER_DIR" ]; then
-    echo "Creating wallpaper asset folder at $WALLPAPER_DIR..."
-    mkdir -p "$WALLPAPER_DIR"
-fi
-
-# 2. Automatically install mpvpaper
-echo "Checking dependencies..."
-if ! command -v mpvpaper &> /dev/null; then
-    echo -e "${YELLOW}mpvpaper not found. Attempting to install...${NC}"
-    if command -v paru &> /dev/null; then
-        paru -S --needed mpvpaper
-    elif command -v yay &> /dev/null; then
-        yay -S --needed mpvpaper
-    else
-        echo -e "${RED}Error: Neither 'paru' nor 'yay' found. Please install mpvpaper manually.${NC}"
-        exit 1
+# Install Dependencies
+for cmd in mpvpaper jq; do
+    if ! command -v $cmd &> /dev/null; then
+        echo -e "${YELLOW}$cmd not found. Installing...${NC}"
+        # Using paru or yay based on availability
+        command -v paru &> /dev/null && paru -S --needed $cmd || yay -S --needed $cmd
     fi
-else
-    echo -e "${GREEN}mpvpaper is already installed.${NC}"
-fi
+done
 
-# 3. Create video_wallpaper.sh with AUTO-DETECT
-echo "Creating wallpaper daemon..."
-cat << EOF > "$WALLPAPER_SCRIPT"
+# Write the actual script
+cat << 'EOF' > "$CONTROLLER_SCRIPT"
 #!/bin/bash
-
-# --- CONFIGURATION ---
-# Uses the path defined during installation
-WALLPAPER_DIR="$WALLPAPER_DIR/"
+WALLPAPER_DIR="$HOME/Pictures/Wallpapers/Live"
 OVERRIDE_FILE="/tmp/wallpaper_disabled"
 
-# --- MONITOR DETECTION ---
-MONITOR=\$(hyprctl monitors | grep "Monitor" | awk '{print \$2}' | head -n 1)
-
-if [ -z "\$MONITOR" ]; then
-    echo "Warning: Could not detect monitor. Defaulting to eDP-1"
-    MONITOR="eDP-1"
+# Handle the Toggle argument
+if [ "$1" == "toggle" ]; then
+    if [ -f "$OVERRIDE_FILE" ]; then
+        rm "$OVERRIDE_FILE"
+        notify-send "Live Wallpaper" "Enabled Video Wallpaper"
+    else
+        touch "$OVERRIDE_FILE"
+        pkill mpvpaper
+        notify-send "Live Wallpaper" "Disabled Video Wallpaper"
+    fi
+    exit 0
 fi
 
-# --- SAFETY CHECK ---
-if [ ! -d "\$WALLPAPER_DIR" ]; then
-    echo "Error: Wallpaper directory not found at \$WALLPAPER_DIR"
-    exit 1
-fi
-
-# --- FUNCTIONS ---
+# Background Monitoring Logic
 is_game_running() {
     pgrep -f "lutris|wine|wine64|steam_app|pcsx2|horizonxi|mercury|sudachi" > /dev/null
 }
 
-# --- MAIN LOOP ---
 while true; do
-    if [ -f "\$OVERRIDE_FILE" ] || is_game_running; then
+    if [ -f "$OVERRIDE_FILE" ] || is_game_running; then
         pkill mpvpaper
     else
-        if ! pgrep -x "mpvpaper" > /dev/null; then
-            # PICK RANDOM VIDEO
-            RANDOM_VIDEO=\$(find "\$WALLPAPER_DIR" -type f \( -name "*.mp4" -o -name "*.mkv" -o -name "*.webm" \) | shuf -n 1)
-
-            if [ -n "\$RANDOM_VIDEO" ]; then
-                setsid mpvpaper -o "--no-audio loop panscan=1.0" "\$MONITOR" "\$RANDOM_VIDEO" &
+        # Detect all active monitors dynamically
+        MONITORS=$(hyprctl monitors -j | jq -r '.[] | .name')
+        for MONITOR in $MONITORS; do
+            # Check for existing process specifically for this monitor
+            if ! pgrep -af "mpvpaper.*$MONITOR" > /dev/null; then
+                VIDEO=$(find "$WALLPAPER_DIR" -type f \( -name "*.mp4" -o -name "*.mkv" -o -name "*.webm" \) | shuf -n 1)
+                [ -n "$VIDEO" ] && mpvpaper -o "loop panscan=1.0 --ao=null --no-audio --no-config --hwdec=auto" "$MONITOR" "$VIDEO" &
             fi
-        fi
+        done
     fi
-    sleep 2
+    sleep 5
 done
 EOF
 
-# 4. Create toggle_wallpaper.sh
-echo "Creating toggle switch..."
-cat << 'EOF' > "$TOGGLE_SCRIPT"
-#!/bin/bash
-OVERRIDE_FILE="/tmp/wallpaper_disabled"
-if [ -f "$OVERRIDE_FILE" ]; then
-    rm "$OVERRIDE_FILE"
-    notify-send "Live Wallpaper" "Enabled (Auto-Mode)"
-else
-    touch "$OVERRIDE_FILE"
-    pkill mpvpaper
-    notify-send "Live Wallpaper" "Disabled (Manual)"
-fi
-EOF
+chmod +x "$CONTROLLER_SCRIPT"
 
-# 5. Make them executable
-chmod +x "$WALLPAPER_SCRIPT"
-chmod +x "$TOGGLE_SCRIPT"
-
-# 6. Automatically update hyprland.conf
-echo "Updating $HYPR_CONF..."
+# Update Hyprland Config
 if [ -f "$HYPR_CONF" ]; then
-    # Add exec-once if not present
-    if ! grep -q "$WALLPAPER_SCRIPT" "$HYPR_CONF"; then
-        echo -e "\n# Live Wallpaper Daemon\nexec-once = $WALLPAPER_SCRIPT" >> "$HYPR_CONF"
-        echo "Added exec-once to config."
-    fi
-    # Add keybind if not present
-    if ! grep -q "$TOGGLE_SCRIPT" "$HYPR_CONF"; then
-        echo "bind = SUPER_ALT, P, exec, $TOGGLE_SCRIPT" >> "$HYPR_CONF"
-        echo "Added keybind (SUPER_ALT + P) to config."
-    fi
-else
-    echo -e "${RED}Warning: $HYPR_CONF not found. Please add the lines manually.${NC}"
+    grep -q "$CONTROLLER_SCRIPT" "$HYPR_CONF" || echo -e "\n# Live Wallpaper Controller\nexec-once = sleep 3 && $CONTROLLER_SCRIPT" >> "$HYPR_CONF"
+    grep -q "$CONTROLLER_SCRIPT toggle" "$HYPR_CONF" || echo "bind = SUPER_ALT, P, exec, $CONTROLLER_SCRIPT toggle" >> "$HYPR_CONF"
 fi
 
 echo -e "${GREEN}Installation Complete!${NC}"
-echo "Place your video files in: $WALLPAPER_DIR"
+echo "The default keybind is Super + Alt + P and can be adjusted in hyprland.conf"
+echo "Place .mp4 wallpapers in ~/Pictures/Wallpapers/Live. the folder has already been created for you."
