@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuration
-VIDEO_WALLPAPER="mpvpaper -o '--hwdec=auto --no-audio --loop' eDP-1 /home/ehpic/Pictures/Wallpapers/Live/SakuraHD.mp4"
+VIDEO_WALLPAPER="mpvpaper -o '--hwdec=auto --no-audio --loop' eDP-1 $HOME/Pictures/Wallpapers/Live/yourvideo.mp4"
 
 # Function to check if a game is running
 is_game_running() {
