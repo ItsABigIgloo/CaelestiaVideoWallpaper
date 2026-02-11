@@ -11,4 +11,4 @@ this is a how to get video wallpaper when using Caelestia Shell
 #Edit TOGGLE_SCRIPT="$INSTALL_DIR/toggle_wallpaper.sh"
 #Edit VIDEO_PATH="$HOME/Path/To/Your/Video.mp4"
 
-#In terminal run /Path/To/Your/.install.sh
+#In terminal run chmod +x /Path/To/Your/.install.sh
