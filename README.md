@@ -6,6 +6,12 @@ A lightweight, automated service for Hyprland that brings your desktop to life w
 [![Hyprland](https://img.shields.io/badge/WM-Hyprland-00AED1.svg)](https://hyprland.org/)
 [![Platform](https://img.shields.io/badge/Platform-Arch%20Linux-1793D1.svg)](https://archlinux.org/)
 
+
+---
+<b>[**Caelestia Shell**](https://caelestiashell.com/landing)</b>
+<img width="224" height="224" alt="caelestia1" src="https://github.com/user-attachments/assets/683928eb-a9c1-4e85-bd8a-c9fdce5d8642" />
+
+[*Caelestia Live*](https://packages.caelestiashell.com/iso/)
 ---
 
 ## 🎬 Preview
