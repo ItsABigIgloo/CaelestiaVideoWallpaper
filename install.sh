@@ -20,8 +20,14 @@ mkdir -p "$WALLPAPER_DIR"
 for cmd in mpvpaper jq; do
     if ! command -v $cmd &> /dev/null; then
         echo -e "${YELLOW}$cmd not found. Installing...${NC}"
-        # Using paru or yay based on availability
-        command -v paru &> /dev/null && paru -S --needed $cmd || yay -S --needed $cmd
+        if command -v paru &> /dev/null; then
+            paru -S --needed "$cmd"
+        elif command -v yay &> /dev/null; then
+            yay -S --needed "$cmd"
+        else
+            echo "Error: Neither paru nor yay was found on this system."
+            exit 1
+        fi
     fi
 done
 
@@ -31,7 +37,7 @@ cat << 'EOF' > "$CONTROLLER_SCRIPT"
 WALLPAPER_DIR="$HOME/Pictures/Wallpapers/Live"
 OVERRIDE_FILE="/tmp/wallpaper_disabled"
 
-# Handle the Toggle argument
+# Handle the Toggle
 if [ "$1" == "toggle" ]; then
     if [ -f "$OVERRIDE_FILE" ]; then
         rm "$OVERRIDE_FILE"
@@ -53,13 +59,15 @@ while true; do
     if [ -f "$OVERRIDE_FILE" ] || is_game_running; then
         pkill mpvpaper
     else
-        # Detect all active monitors dynamically
+        # Detect all active monitors
         MONITORS=$(hyprctl monitors -j | jq -r '.[] | .name')
         for MONITOR in $MONITORS; do
-            # Check for existing process specifically for this monitor
-            if ! pgrep -af "mpvpaper.*$MONITOR" > /dev/null; then
-                VIDEO=$(find "$WALLPAPER_DIR" -type f \( -name "*.mp4" -o -name "*.mkv" -o -name "*.webm" \) | shuf -n 1)
-                [ -n "$VIDEO" ] && mpvpaper -o "loop panscan=1.0 --ao=null --no-audio --no-config --hwdec=auto" "$MONITOR" "$VIDEO" &
+            if ! pgrep -f "mpvpaper.*$MONITOR" > /dev/null; then
+                VIDEO=$(find "$WALLPAPER_DIR" -maxdepth 1 -type f \( -name "*.mp4" -o -name "*.mkv" -o -name "*.webm" \) | shuf -n 1)
+
+                if [ -n "$VIDEO" ]; then
+                    mpvpaper -o "loop panscan=1.0 --ao=null --no-audio --hwdec=auto --no-config" "$MONITOR" "$VIDEO" &
+                fi
             fi
         done
     fi
@@ -77,4 +85,4 @@ fi
 
 echo -e "${GREEN}Installation Complete!${NC}"
 echo "The default keybind is Super + Alt + P and can be adjusted in hyprland.conf"
-echo "Place .mp4 wallpapers in ~/Pictures/Wallpapers/Live. the folder has already been created for you."
+echo "Place .mp4 wallpapers in ~/Pictures/Wallpapers/Live. the folder has already been created for you
