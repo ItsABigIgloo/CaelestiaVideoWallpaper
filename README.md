@@ -4,11 +4,20 @@
 #Download the Install script from this Repo
 
 #In terminal run:
+
+
 `chmod +x /Path/To/Your/install.sh`
 #then run:
+
+
 `/Path/To/Your/install.sh`
-#reboot for good measure
+
+
+#reboot for good measure:
+
+
 `reboot -now`
+
 
 #Everything should already be provided to you, it'll make the directories and download the necessary tools for everything to work. 
 All you need to do is BYOV (Bring Your Own Video). Drop your videos (.mp4) into $HOME/Pictures/Wallpapers/Live/ 
