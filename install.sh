@@ -71,7 +71,7 @@ while true; do
             fi
         done
     fi
-    sleep 5
+    sleep 1
 done
 EOF
 
@@ -79,7 +79,7 @@ chmod +x "$CONTROLLER_SCRIPT"
 
 # Update Hyprland Config
 if [ -f "$HYPR_CONF" ]; then
-    grep -q "$CONTROLLER_SCRIPT" "$HYPR_CONF" || echo -e "\n# Live Wallpaper Controller\nexec-once = sleep 3 && $CONTROLLER_SCRIPT" >> "$HYPR_CONF"
+    grep -q "$CONTROLLER_SCRIPT" "$HYPR_CONF" || echo -e "\n# Live Wallpaper Controller\nexec-once = sleep 2 && $CONTROLLER_SCRIPT" >> "$HYPR_CONF"
     grep -q "$CONTROLLER_SCRIPT toggle" "$HYPR_CONF" || echo "bind = SUPER_ALT, P, exec, $CONTROLLER_SCRIPT toggle" >> "$HYPR_CONF"
 fi
 
