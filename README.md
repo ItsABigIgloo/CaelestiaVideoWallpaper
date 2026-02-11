@@ -7,6 +7,8 @@
 
 
 `chmod +x /Path/To/Your/install.sh`
+
+
 #then run:
 
 
