@@ -1,4 +1,4 @@
-# CaelestiaVideoWallpaper
+# Hyprland Video Wallpaper Service
 *INSTRUCTIONS*
 
 #Download the Install script from this Repo
