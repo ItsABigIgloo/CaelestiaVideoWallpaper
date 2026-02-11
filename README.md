@@ -1,32 +1,17 @@
-# Hyprland Video Wallpaper Service
-*INSTRUCTIONS*
+# 🌌 Hyprland Video Wallpaper Service
 
-#Download the Install script from this Repo
+A lightweight, automated service for Hyprland that brings your desktop to life with randomized video wallpapers.
 
-#In terminal run:
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Hyprland](https://img.shields.io/badge/WM-Hyprland-00AED1.svg)](https://hyprland.org/)
+[![Platform](https://img.shields.io/badge/Platform-Arch%20Linux-1793D1.svg)](https://archlinux.org/)
 
+---
 
-`chmod +x /Path/To/Your/install.sh`
+## 🎬 Preview
 
+| Smooth Transitions | Randomization Feature | Kinda Slow |
 
-#then run:
-
-
-`/Path/To/Your/install.sh`
-
-
-#reboot for good measure:
-
-
-`reboot -now`
-
-
-#Everything should already be provided to you, it'll make the directories and download the necessary tools for everything to work. 
-All you need to do is BYOV (Bring Your Own Video). Drop your videos (.mp4) into $HOME/Pictures/Wallpapers/Live/ 
- 
-________________________________________________________________________________________________________________________
-
-#example video shows that any video wallpaper in the "Live" folder will be chosen at random to be displayed.
 
 https://github.com/user-attachments/assets/ba6c6e9a-1a44-4853-8dd8-ffd77114cd0f
 
@@ -35,3 +20,19 @@ ________________________________________________________________________________
 https://github.com/user-attachments/assets/c6527a97-fd3b-47bc-aafd-dfb1d535ca21
 
 
+---
+
+## 🚀 Quick Start
+
+Everything is automated. The install script handles directory creation, dependency checks, and service configuration.
+
+Download the `install.sh` script from this repository and navigate to your download folder.
+
+```bash
+chmod +x install.sh
+
+
+/Path/To/Your/install.sh
+
+
+reboot -now
