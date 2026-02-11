@@ -82,7 +82,7 @@ while true; do
             RANDOM_VIDEO=\$(find "\$WALLPAPER_DIR" -type f \( -name "*.mp4" -o -name "*.mkv" -o -name "*.webm" \) | shuf -n 1)
 
             if [ -n "\$RANDOM_VIDEO" ]; then
-                setsid mpvpaper -o "loop panscan=1.0" "\$MONITOR" "\$RANDOM_VIDEO" &
+                setsid mpvpaper -o "--no-audio loop panscan=1.0" "\$MONITOR" "\$RANDOM_VIDEO" &
             fi
         fi
     fi
