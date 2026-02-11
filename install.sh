@@ -85,4 +85,4 @@ fi
 
 echo -e "${GREEN}Installation Complete!${NC}"
 echo "The default keybind is Super + Alt + P and can be adjusted in hyprland.conf"
-echo "Place .mp4 wallpapers in ~/Pictures/Wallpapers/Live. the folder has already been created for you
+echo "Place .mp4 wallpapers in ~/Pictures/Wallpapers/Live. the folder has already been created for you"
